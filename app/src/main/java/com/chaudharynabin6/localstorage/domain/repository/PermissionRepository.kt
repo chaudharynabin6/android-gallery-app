@@ -1,5 +1,6 @@
 package com.chaudharynabin6.localstorage.domain.repository
 
+import android.graphics.Bitmap
 import androidx.activity.result.ActivityResultLauncher
 import com.chaudharynabin6.localstorage.domain.model.Permission
 

@@ -32,7 +32,7 @@ class InternalStoragePart1ViewModel @Inject constructor(
 
         when (event) {
             is InternalStoragePart1Events.TakePhoto -> {
-                internalStorageRepository.takePhoto(state.isPrivate, bitmap = event.bitmap)
+                internalStorageRepository.takePhoto(state.isPrivate, bitmap = event.bitmap, writePermission = state.permission.writePermission)
                 loadPhotosFromInternalStorage()
             }
             is InternalStoragePart1Events.TogglePrivate -> {

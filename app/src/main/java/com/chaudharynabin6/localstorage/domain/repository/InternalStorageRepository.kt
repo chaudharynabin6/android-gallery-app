@@ -12,5 +12,8 @@ interface InternalStorageRepository {
 
     fun deletePhotoFromInternalStorage(filename: String) : Boolean
 
-    fun takePhoto(isPrivate : Boolean,bitmap: Bitmap)
+    fun takePhoto(isPrivate : Boolean,bitmap: Bitmap, writePermission: Boolean)
+
+    fun savePhotoToExternalStorage(displayName : String,bitmap: Bitmap) : Boolean
+
 }
