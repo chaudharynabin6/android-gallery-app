@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.chaudharynabin6.localstorage.data.mapper.toImageData
 import com.chaudharynabin6.localstorage.domain.repository.InternalStorageRepository
+import com.chaudharynabin6.localstorage.domain.repository.PermissionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,12 +15,17 @@ import javax.inject.Inject
 @HiltViewModel
 class InternalStoragePart1ViewModel @Inject constructor(
     private val internalStorageRepository: InternalStorageRepository,
+    private val permissionRepository: PermissionRepository
 ) : ViewModel() {
 
     var state by mutableStateOf(Part1State())
 
     init {
         loadPhotosFromInternalStorage()
+        val getInitialPermission = permissionRepository.getInitialPermission()
+        state = state.copy(
+            permission = getInitialPermission
+        )
     }
 
     fun onEvent(event: InternalStoragePart1Events) {
@@ -37,6 +43,19 @@ class InternalStoragePart1ViewModel @Inject constructor(
             is InternalStoragePart1Events.DeletePhoto -> {
                 internalStorageRepository.deletePhotoFromInternalStorage(event.fileName)
                 loadPhotosFromInternalStorage()
+            }
+            is InternalStoragePart1Events.GetPermissionToRequest -> {
+                val getInitialPermission = permissionRepository.getInitialPermission()
+
+                val permissionToRequest = permissionRepository.updatePermission(getInitialPermission)
+                state = state.copy(
+                    permissionToRequest = permissionToRequest?.toList() ?: emptyList()
+                )
+            }
+            is InternalStoragePart1Events.ChangePermission -> {
+                state = state.copy(
+                    permission = event.permission
+                )
             }
         }
     }

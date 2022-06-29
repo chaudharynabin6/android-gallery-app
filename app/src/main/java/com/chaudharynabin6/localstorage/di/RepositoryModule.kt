@@ -1,7 +1,9 @@
 package com.chaudharynabin6.localstorage.di
 
 import com.chaudharynabin6.localstorage.data.repository.InternalStorageRepositoryImp
+import com.chaudharynabin6.localstorage.data.repository.PermissionRepositoryImp
 import com.chaudharynabin6.localstorage.domain.repository.InternalStorageRepository
+import com.chaudharynabin6.localstorage.domain.repository.PermissionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,4 +20,9 @@ abstract class RepositoryModule {
         internalStorageRepositoryImp: InternalStorageRepositoryImp
     ) : InternalStorageRepository
 
+    @Singleton
+    @Binds
+    abstract fun bindsPermissionRepository(
+        permissionRepositoryImp: PermissionRepositoryImp
+    ) : PermissionRepository
 }
