@@ -1,7 +1,8 @@
 package com.chaudharynabin6.localstorage.presentation.internalstorage_part1
 
 import android.content.Context
-import android.graphics.ImageDecoder
+import android.database.ContentObserver
+import android.provider.MediaStore
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,17 +14,16 @@ import com.chaudharynabin6.localstorage.domain.repository.InternalStorageReposit
 import com.chaudharynabin6.localstorage.domain.repository.PermissionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.IndexOutOfBoundsException
 import javax.inject.Inject
 
 @HiltViewModel
 class InternalStoragePart1ViewModel @Inject constructor(
     private val internalStorageRepository: InternalStorageRepository,
     private val permissionRepository: PermissionRepository,
+    @ApplicationContext private val context : Context
 ) : ViewModel() {
-
+    private lateinit var contentObserver: ContentObserver
     var state by mutableStateOf(Part1State())
 
     init {
@@ -33,6 +33,7 @@ class InternalStoragePart1ViewModel @Inject constructor(
             permission = getInitialPermission
         )
         loadPhotosFromExternalStorage()
+        initContentObserver()
     }
 
     fun onEvent(event: InternalStoragePart1Events) {
@@ -58,6 +59,9 @@ class InternalStoragePart1ViewModel @Inject constructor(
                 state = state.copy(
                     permissionToRequest = permissionToRequest?.toList() ?: emptyList()
                 )
+                if(state.permission.readPermission){
+                    loadPhotosFromExternalStorage()
+                }
             }
             is InternalStoragePart1Events.ChangePermission -> {
                 state = state.copy(
@@ -79,33 +83,6 @@ class InternalStoragePart1ViewModel @Inject constructor(
         }
     }
 
-//    private fun loadPhotosFromGivenIndex(index: Int) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val bitmaps = try {
-//                state.externalImageDataList.subList(index,1).map {
-//
-//                    val source =
-//                        ImageDecoder.createSource(context.contentResolver, it.contentUri)
-//                    val bitmap = ImageDecoder.decodeBitmap(source)
-//
-//                    bitmap
-//                }
-//            }
-//            catch (
-//                e : IndexOutOfBoundsException
-//            ){
-//                e.printStackTrace()
-//                null
-//            }
-//
-//
-//            state = state.copy(
-//                bitmap = bitmaps ?: emptyList()
-//            )
-//        }
-//
-//    }
-
 
     private fun loadPhotosFromExternalStorage() {
         viewModelScope.launch {
@@ -114,27 +91,34 @@ class InternalStoragePart1ViewModel @Inject constructor(
             val photosExternalStorage = photos.map { it.toExternalImageData() }
 
 
-//            val bitmaps = photos.mapNotNull {
-//                val bitmap = withContext(Dispatchers.IO){
-//                    return@withContext try {
-//                        val source =
-//                            ImageDecoder.createSource(context.contentResolver, it.contentUri)
-//                        val  bitmap  = ImageDecoder.decodeBitmap(source)
-//                        bitmap
-//                    } catch (e : Exception){
-//                        e.printStackTrace()
-//                        null
-//                    }
-//                }
-//                bitmap
-//            }
-
             state = state.copy(
                 externalImageDataList = photosExternalStorage,
-//                bitmap = bitmaps
-            )
-
-
+                )
         }
+    }
+
+    private fun initContentObserver(){
+
+        contentObserver = object  : ContentObserver(null){
+            override fun onChange(selfChange: Boolean) {
+                if(state.permission.readPermission){
+                    loadPhotosFromExternalStorage()
+                }
+            }
+        }
+        context.contentResolver.registerContentObserver(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            true,
+            contentObserver
+        )
+
+
+    }
+
+    override fun onCleared() {
+        context.contentResolver.unregisterContentObserver(
+            contentObserver
+        )
+        super.onCleared()
     }
 }
