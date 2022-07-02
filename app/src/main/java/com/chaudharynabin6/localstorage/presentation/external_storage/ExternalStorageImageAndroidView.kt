@@ -25,12 +25,12 @@ fun ExternalStorageImageAndroidView(
     modifier: Modifier,
     viewModel: InternalStoragePart1ViewModel = hiltViewModel(),
 ) {
-    val gridState = rememberLazyGridState()
-    val gridIndex by remember {
-        derivedStateOf { gridState.firstVisibleItemIndex }
-    }
+//    val gridState = rememberLazyGridState()
+//    val gridIndex by remember {
+//        derivedStateOf { gridState.firstVisibleItemIndex }
+//    }
     LazyVerticalGrid(
-        state = gridState,
+//        state = gridState,
         columns = GridCells.Adaptive(minSize = 128.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -46,7 +46,7 @@ fun ExternalStorageImageAndroidView(
             }
         ) { index: Int, item: ExternalImageData ->
 
-//            if (index >= gridIndex && index < gridIndex + 6) {
+//            if (index >= gridState.firstVisibleItemIndex && index < gridState.firstVisibleItemIndex + 6) {
 
 //                AndroidView(factory = {
 //                    ImageView(it)

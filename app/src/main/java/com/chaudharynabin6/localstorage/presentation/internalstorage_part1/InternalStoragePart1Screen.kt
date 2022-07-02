@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Switch
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -54,11 +55,20 @@ fun InternalStoragePart1Screen(
             viewModel.onEvent(InternalStoragePart1Events.GetPermissionToRequest)
             permissionLauncher.launch(state.permissionToRequest.toTypedArray())
         }
+        Text(
+            text = "Internal Photos",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
 
-//        ImageGridViewPart1(imageData = state.photos,
-//            modifier = Modifier
-//                .fillMaxSize()
-//                .weight(1f))
+        ImageGridViewPart1(
+            imageData = state.photos,
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+        )
 
 //        ExternalStorageImageGridView(imageData = state.externalImageDataList, modifier = Modifier
 //            .fillMaxWidth().height(200.dp)
@@ -67,7 +77,13 @@ fun InternalStoragePart1Screen(
 //            imageData = state.externalImageDataList,
 //            modifier = Modifier.fillMaxWidth().weight(1f)
 //        )
-
+        Text(
+            text = "External Photos",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.CenterHorizontally)
+        )
         ExternalStorageImageAndroidView(
             imageData = state.externalImageDataList,
             modifier = Modifier
