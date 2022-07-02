@@ -1,11 +1,14 @@
 package com.chaudharynabin6.localstorage.data.repository
 
+import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.IntentSender
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -203,5 +206,35 @@ class InternalStorageRepositoryImp @Inject constructor(
             } ?: emptyList()
 
         }
+    }
+
+    override suspend fun deletePhotoFromExternalStorage(photoUri: Uri): IntentSender? {
+
+        return withContext(Dispatchers.IO) {
+            var intentSender: IntentSender? = null
+            try {
+//                for 28 and less
+                context.contentResolver.delete(photoUri, null, null)
+
+            } catch (e: SecurityException) {
+                intentSender = when {
+//                  30 and greater
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                        MediaStore.createDeleteRequest(context.contentResolver,
+                            listOf(photoUri)).intentSender
+                    }
+//                  29 and greater
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                        val recoverableSecurityException = e as? RecoverableSecurityException
+                        val intent =
+                            recoverableSecurityException?.userAction?.actionIntent?.intentSender
+                        intent
+                    }
+                    else -> null
+                }
+            }
+            intentSender
+        }
+
     }
 }

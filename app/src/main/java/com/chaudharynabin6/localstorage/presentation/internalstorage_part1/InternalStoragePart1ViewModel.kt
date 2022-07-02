@@ -1,8 +1,11 @@
 package com.chaudharynabin6.localstorage.presentation.internalstorage_part1
 
 import android.content.Context
+import android.content.IntentSender
 import android.database.ContentObserver
+import android.net.Uri
 import android.provider.MediaStore
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +17,9 @@ import com.chaudharynabin6.localstorage.domain.repository.InternalStorageReposit
 import com.chaudharynabin6.localstorage.domain.repository.PermissionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -71,6 +77,25 @@ class InternalStoragePart1ViewModel @Inject constructor(
             is InternalStoragePart1Events.GetIndex -> {
 //                loadPhotosFromGivenIndex(index = event.index)
             }
+            is InternalStoragePart1Events.DeleteExternalStoragePhoto -> {
+//                deletePhotoFromExternalStorage(event.uri)
+            }
+            is InternalStoragePart1Events.PhotoToDeleteAfterPermissionSuccessful -> {
+
+                Toast.makeText(context, "Photo deleted successfully", Toast.LENGTH_SHORT).show()
+
+                state.photoToDeleteUri?.let { deletePhotoFromExternalStorageAfterPermission(it) }
+                state = state.copy(
+                    photoToDeleteUri = null
+                )
+
+            }
+            InternalStoragePart1Events.PhotoToDeleteAfterPermissionUnsuccessful -> {
+                Toast.makeText(context, "Photo couldn't be deleted ", Toast.LENGTH_LONG).show()
+                state = state.copy(
+                    photoToDeleteUri = null
+                )
+            }
         }
     }
 
@@ -113,6 +138,32 @@ class InternalStoragePart1ViewModel @Inject constructor(
         )
 
 
+    }
+
+    fun deletePhotoFromExternalStorage(photoUri: Uri): Flow<IntentSender?> {
+
+        return flow {
+            var intentSender: IntentSender? = null
+            val job = viewModelScope.launch {
+                intentSender = internalStorageRepository.deletePhotoFromExternalStorage(photoUri)
+
+
+                state = state.copy(
+                    intentSender = intentSender,
+                    photoToDeleteUri = photoUri
+                )
+            }
+            job.join()
+            emit(intentSender)
+
+        }
+
+    }
+
+    private fun deletePhotoFromExternalStorageAfterPermission(photoUri: Uri) {
+        viewModelScope.launch {
+            val intentSender = internalStorageRepository.deletePhotoFromExternalStorage(photoUri)
+        }
     }
 
     override fun onCleared() {

@@ -1,6 +1,8 @@
 package com.chaudharynabin6.localstorage.presentation.internalstorage_part1
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -51,6 +53,8 @@ fun InternalStoragePart1Screen(
 
 
             }
+
+
         LaunchedEffect(state.permissionToRequest) {
             viewModel.onEvent(InternalStoragePart1Events.GetPermissionToRequest)
             permissionLauncher.launch(state.permissionToRequest.toTypedArray())
