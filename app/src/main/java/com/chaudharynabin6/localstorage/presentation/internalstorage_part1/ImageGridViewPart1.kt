@@ -1,7 +1,7 @@
 package com.chaudharynabin6.localstorage.presentation.internalstorage_part1
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,7 +23,7 @@ fun ImageGridViewPart1(
     modifier: Modifier,
     viewModel: InternalStoragePart1ViewModel = hiltViewModel()
 ) {
-
+    val state = viewModel.state
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -33,25 +32,15 @@ fun ImageGridViewPart1(
         modifier = modifier
     ) {
         items(
-            items = imageData,
-            key = {
-                it.fileName
-            }
-        ) { item: ImageData ->
+            items = state.bitmap,
+
+            ) { item: Bitmap ->
 
             Image(
-                bitmap = item.bitmap.asImageBitmap(),
+                bitmap = item.asImageBitmap(),
                 contentDescription = null,
                 modifier = Modifier
-                    .height(128.dp)
-//                        https://developer.android.com/jetpack/compose/gestures
-                    .pointerInput(key1 = item.fileName) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    viewModel.onEvent(InternalStoragePart1Events.DeletePhoto(item.fileName))
-                                }
-                            )
-                    },
+                    .height(128.dp),
                 contentScale = ContentScale.FillBounds
             )
 

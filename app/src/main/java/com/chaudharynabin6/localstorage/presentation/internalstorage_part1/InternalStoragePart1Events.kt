@@ -10,4 +10,5 @@ sealed class InternalStoragePart1Events {
     data class DeletePhoto(val fileName : String) : InternalStoragePart1Events()
     object GetPermissionToRequest : InternalStoragePart1Events()
     data class ChangePermission(val permission: Permission) : InternalStoragePart1Events()
+    data class GetIndex(val index : Int) : InternalStoragePart1Events()
 }

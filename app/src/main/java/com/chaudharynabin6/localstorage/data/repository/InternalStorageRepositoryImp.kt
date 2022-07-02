@@ -1,13 +1,16 @@
 package com.chaudharynabin6.localstorage.data.repository
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.chaudharynabin6.localstorage.data.internal_storage.InternalStoragePhoto
+import com.chaudharynabin6.localstorage.data.internal_storage.SharedStoragePhoto
 import com.chaudharynabin6.localstorage.domain.repository.InternalStorageRepository
 import com.chaudharynabin6.localstorage.util.isSdk29orUp
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -128,6 +131,77 @@ class InternalStorageRepositoryImp @Inject constructor(
         } catch (e: IOException) {
             e.printStackTrace()
             false
+        }
+    }
+
+    override suspend fun loadPhotosFromExternalStorage(): List<SharedStoragePhoto> {
+
+        return withContext(
+            Dispatchers.IO
+        ) {
+            val externalImageCollection = isSdk29orUp {
+                MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            } ?: MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+            val projection = arrayOf(
+                MediaStore.Images.Media._ID,
+                MediaStore.Images.Media.DISPLAY_NAME,
+                MediaStore.Images.Media.WIDTH,
+                MediaStore.Images.Media.HEIGHT
+            )
+            val photos = mutableListOf<SharedStoragePhoto>()
+            context.contentResolver.query(
+                externalImageCollection,
+                projection,
+                """ 
+                    ${MediaStore.Images.Media.DISPLAY_NAME} LIKE '%.jpg'
+                  
+                 """.trimIndent(),
+                null,
+                "${MediaStore.Images.Media.DISPLAY_NAME} ASC"
+            )?.use { cursor ->
+
+                val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                val displayNameColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val widthColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH)
+                val heightColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT)
+
+
+                while (cursor.moveToNext()) {
+                    val id = cursor.getLong(idColumn)
+                    val displayName = cursor.getString(displayNameColumn)
+                    val width = cursor.getInt(widthColumn)
+                    val height = cursor.getInt(heightColumn)
+
+                    val contentUri = ContentUris.withAppendedId(
+                        externalImageCollection,
+                        id
+                    )
+
+//                    val source = ImageDecoder.createSource(context.contentResolver, contentUri)
+//
+//
+//                    val bitmap = ImageDecoder.decodeBitmap(source)
+
+
+
+                    photos.add(
+                        SharedStoragePhoto(
+                            id = id,
+                            name = displayName,
+                            width = width,
+                            height = height,
+                            contentUri = contentUri,
+//                            bitmap = bitmap
+                        )
+                    )
+
+
+                }
+                photos.toList()
+            } ?: emptyList()
+
         }
     }
 }

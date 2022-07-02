@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.chaudharynabin6.localstorage.R
 import com.chaudharynabin6.localstorage.domain.model.Permission
+import com.chaudharynabin6.localstorage.presentation.external_storage.ExternalStorageImageAndroidView
 
 
 @Composable
@@ -25,9 +26,7 @@ fun InternalStoragePart1Screen(
     viewModel: InternalStoragePart1ViewModel = hiltViewModel(),
 ) {
     val state = viewModel.state
-    Column(
-
-    ) {
+    Column {
         val takePictureLauncher =
             rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicturePreview()) {
                 it?.also {
@@ -55,9 +54,27 @@ fun InternalStoragePart1Screen(
             viewModel.onEvent(InternalStoragePart1Events.GetPermissionToRequest)
             permissionLauncher.launch(state.permissionToRequest.toTypedArray())
         }
-        ImageGridViewPart1(imageData = state.photos, modifier = Modifier
-            .fillMaxSize()
-            .weight(1f))
+
+//        ImageGridViewPart1(imageData = state.photos,
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .weight(1f))
+
+//        ExternalStorageImageGridView(imageData = state.externalImageDataList, modifier = Modifier
+//            .fillMaxWidth().height(200.dp)
+//            )
+//        ExternalStorageImageListView(
+//            imageData = state.externalImageDataList,
+//            modifier = Modifier.fillMaxWidth().weight(1f)
+//        )
+
+        ExternalStorageImageAndroidView(
+            imageData = state.externalImageDataList,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround,

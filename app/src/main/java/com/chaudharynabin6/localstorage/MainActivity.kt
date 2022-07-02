@@ -3,6 +3,8 @@ package com.chaudharynabin6.localstorage
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import com.chaudharynabin6.localstorage.presentation.external_storage.ExternalStorageImageGridView
+import com.chaudharynabin6.localstorage.presentation.external_storage.ExternalStorageRowScrollView
 import com.chaudharynabin6.localstorage.presentation.internalstorage_part1.InternalStoragePart1Screen
 import dagger.hilt.android.AndroidEntryPoint
 
