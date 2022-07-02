@@ -1,8 +1,6 @@
 package com.chaudharynabin6.localstorage.presentation.internalstorage_part1
 
 import android.Manifest
-import android.app.Activity
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -100,17 +98,29 @@ fun InternalStoragePart1Screen(
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Switch(checked = state.isPrivate, onCheckedChange = {
-                viewModel.onEvent(InternalStoragePart1Events.TogglePrivate)
-            })
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "private",
+                    modifier = Modifier.padding(16.dp)
+                )
+                Switch(
+                    checked = state.isPrivate,
+                    onCheckedChange = {
+                        viewModel.onEvent(InternalStoragePart1Events.TogglePrivate)
+                    }
+                )
+            }
+
 
             IconButton(onClick = {
-               takePictureLauncher.launch()
+                takePictureLauncher.launch()
             }) {
                 Icon(painter = painterResource(id = R.drawable.ic_baseline_camera_alt_24),
                     contentDescription = null,
-                    tint = Color.Gray
-                    ,
+                    tint = Color.Gray,
                     modifier = Modifier
                         .width(24.dp)
                         .height(24.dp))

@@ -161,7 +161,7 @@ class InternalStorageRepositoryImp @Inject constructor(
                   
                  """.trimIndent(),
                 null,
-                "${MediaStore.Images.Media.DISPLAY_NAME} ASC"
+                "${MediaStore.Images.Media.DATE_MODIFIED} DESC"
             )?.use { cursor ->
 
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
