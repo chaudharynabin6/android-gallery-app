@@ -32,6 +32,9 @@ import com.chaudharynabin6.localstorage.R
 import com.chaudharynabin6.localstorage.domain.model.ExternalImageData
 import com.chaudharynabin6.localstorage.presentation.internalstorage_part1.InternalStoragePart1Events
 import com.chaudharynabin6.localstorage.presentation.internalstorage_part1.InternalStoragePart1ViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ExternalStorageImageAndroidView(
@@ -54,6 +57,26 @@ fun ExternalStorageImageAndroidView(
 
     val gridState = rememberLazyGridState()
     val gridIndex by remember { derivedStateOf { gridState.firstVisibleItemIndex } }
+    var toShow by remember {
+        mutableStateOf(false)
+    }
+var job : Job? = null
+    DisposableEffect(key1 = gridIndex){
+        scope.launch {
+            job = scope.launch {
+                delay(300)
+                toShow = true
+            }
+
+        }
+
+        onDispose {
+            scope.launch {
+                job?.cancel()
+                toShow = false
+            }
+        }
+    }
     LazyVerticalGrid(
         state = gridState,
         columns = GridCells.Adaptive(minSize = 128.dp),
@@ -70,14 +93,16 @@ fun ExternalStorageImageAndroidView(
                 item.id
             }
         ) { index: Int, item: ExternalImageData ->
-            if(index >=  gridIndex- 2 && index <= gridIndex + 4){
+
+
+            if(index >=  gridIndex- 2 && index <= gridIndex + 2 && toShow){
                 ImageItem(uri = item.contentUri)
             }
             else{
-//                Image(painter = painterResource(id = R.drawable.image_1), contentDescription = null)
-                Box() {
-                    
-                }
+                Image(painter = painterResource(id = R.drawable.image_1), contentDescription = null)
+//                Box() {
+//
+//                }
             }
 //            GlideImage(
 //                imageModel = item.contentUri,
@@ -124,7 +149,7 @@ fun loadPicture(url: String, placeholder: Painter? = null): Painter? {
         mutableStateOf(placeholder)
     }
 
-    val options: RequestOptions = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.RESOURCE)
+    val options: RequestOptions = RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE)
     val context = LocalContext.current
     val result = object : CustomTarget<Bitmap>() {
         override fun onLoadCleared(p: Drawable?) {
