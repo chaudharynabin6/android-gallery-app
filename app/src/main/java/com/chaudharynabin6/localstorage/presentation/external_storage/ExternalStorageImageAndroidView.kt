@@ -95,7 +95,7 @@ var job : Job? = null
         ) { index: Int, item: ExternalImageData ->
 
 
-            if(index >=  gridIndex- 2 && index <= gridIndex + 2 && toShow){
+            if(index >=  gridIndex- 2 && index <= gridIndex + 3 && toShow){
                 ImageItem(uri = item.contentUri)
             }
             else{
